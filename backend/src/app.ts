@@ -1,16 +1,29 @@
-// src/index.ts
-import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
+import express from "express";
+import { setupMiddlewares } from "./middlewares/setupMiddlewares";
+import authRoutes from "./routes/authRoutes";
 
-dotenv.config();
+const app = express();
 
-const app: Express = express();
-const port = process.env.PORT || 3000;
+// Setup middlewares
+setupMiddlewares(app);
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Express + TypeScript Server");
+// Routes
+app.use("/auth", authRoutes);
+
+// Default route for API information
+app.get("/", (req, res) => {
+  res.json({
+    message: "Welcome to Jacob's Project Management Tool API",
+    routes: {
+      users: "/api/v1/users",
+      friends: "/api/v1/friends",
+    },
+  });
 });
 
-app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
+// Default route for undefined endpoints
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found :-(" });
 });
+
+export default app;
